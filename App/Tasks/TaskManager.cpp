@@ -3,11 +3,13 @@
 #include <queue.h>
 #include <functional>
 
-#include <LedDebug.hpp>
+#include <Hardware.hpp>
+#include <BatterySystem.hpp>
 
 // This is "main" - entry function that is called after system initialization
 void entryPoint(){
-    
+    Hardware::InitializeStaticVariables();
+
     TaskManager taskManager;
     taskManager.registerTasks();
     taskManager.startTasks();
@@ -37,7 +39,7 @@ size_t Task::getPriority() const {
 }
 
 void TaskManager::registerTasks() {
-    tasks.push_back(std::make_shared<LedDebug>());
+    tasks.push_back(std::make_shared<BatterySystem>());
 }
 
 void TaskManager::startTasks() {

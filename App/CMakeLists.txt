@@ -5,7 +5,8 @@ add_executable(Firmware
         # Hardware abstraction
         Tasks/TaskManager.cpp
         # User code
-        Tasks/LedDebug.cpp
+        Tasks/BatterySystem.cpp
+        Tasks/BatteryPack.cpp
 )
 
 target_include_directories(Firmware PRIVATE Tasks/)
