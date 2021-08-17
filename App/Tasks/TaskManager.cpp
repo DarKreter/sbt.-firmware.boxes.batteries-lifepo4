@@ -8,8 +8,6 @@
 
 // This is "main" - entry function that is called after system initialization
 void entryPoint(){
-    Hardware::InitializeStaticVariables();
-
     TaskManager taskManager;
     taskManager.registerTasks();
     taskManager.startTasks();

@@ -4,16 +4,20 @@
 
 #include "BatterySystem.hpp"
 
-BatterySystem::BatterySystem() : Task({}, 500, 2), pack(batteryAddress) {}
+BatterySystem::BatterySystem() : Task({}, 1000, 2), pack(batteryAddress) {}
 
 void BatterySystem::initialize() {
     Hardware::configureClocks();
+
     Hardware::uart1.ChangeModeToBlocking(1000);
     Hardware::uart1.SetBaudRate(9600);
     Hardware::uart1.Initialize();
     Hardware::uart2.ChangeModeToBlocking(1000);
     Hardware::uart2.SetBaudRate(9600);
     Hardware::uart2.Initialize();
+
+    Hardware::can.Initialize(0x100, {});
+
     Hardware::enableGpio(GPIOA, GPIO_PIN_1, Gpio::Mode::Output);
 }
 void BatterySystem::run() {
@@ -32,6 +36,7 @@ void BatterySystem::getData() {
 void BatterySystem::sendData() {
     if (isFrameValid()) {
         //TODO (DAMIN) send data via CAN
+        Hardware::can.Send(0x60, static_cast<int32_t>(pack.getBattVol()));
         convertToString(pack.getCellVol(Cell::cell_1));
         Hardware::uart1.Send(valueToSend, sizeof(valueToSend));
         convertToString(pack.getCellVol(Cell::cell_2));
