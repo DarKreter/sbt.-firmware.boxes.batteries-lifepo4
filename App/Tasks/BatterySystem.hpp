@@ -23,6 +23,9 @@ private:
     void getData();
     void sendData();
     bool isFrameValid();
+    void sendDataCan();
+
+    void sendDataUart();
     void convertToString(uint16_t value);
 };
 

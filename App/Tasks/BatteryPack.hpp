@@ -64,7 +64,6 @@ private:
     uint16_t chargeLevelAh;
     uint16_t capacity;
 
-    uint16_t convertHexToDec(uint8_t start, uint8_t end);
     void setCellVol(uint8_t cell);
     void setBattVol();
     void setChargingCurrent();
@@ -73,6 +72,8 @@ private:
     void setChargeLevelPercentage();
     void setChargeLevelAh();
     void setCapacity();
+
+    uint16_t convertHexToDec(uint8_t start, uint8_t end);
 };
 #endif //F1XX_PROJECT_TEMPLATE_BATTERYPACK_HPP
 
