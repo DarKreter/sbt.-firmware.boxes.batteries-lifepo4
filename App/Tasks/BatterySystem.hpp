@@ -17,12 +17,13 @@ struct BatterySystem : public Task {
 private:
     const uint8_t batteryAddress[ADDRESS_LENGTH] = {':', '0', '0', '0', '2', '0', '0', '0', '0', '1', '1', 'B', 'M', 'S', '3', '9', '~'};
     uint8_t receivedFrame[FRAME_LENGTH] = {0};
-    BatteryPack pack;
+    const uint8_t clearFrame[FRAME_LENGTH] = {0};
+    BatteryPack pack_1, pack_2;
     uint8_t valueToSend[6] = {0};
 
-    void getData();
+    void getData(const uint8_t choice);
     void sendData();
-    bool isFrameValid();
+    bool isFrameValid(BatteryPack& pack);
     void sendDataCan();
 
     void sendDataUart();
