@@ -50,15 +50,25 @@ bool BatterySystem::isFrameValid() {
 
 void BatterySystem::sendDataCan() {
     Hardware::can.Send(0x60, static_cast<int32_t>(pack.getChargingCurrent()));
+    vTaskDelay(5);
     Hardware::can.Send(0x61, static_cast<int32_t>(pack.getDischargingCurrent()));
+    vTaskDelay(5);
     Hardware::can.Send(0x62, static_cast<int32_t>(pack.getState()));
+    vTaskDelay(5);
     Hardware::can.Send(0x63, static_cast<int32_t>(pack.getChargeLevelPercentage()));
+    vTaskDelay(5);
     Hardware::can.Send(0x64, static_cast<int32_t>(pack.getChargeLevelAh()));
+    vTaskDelay(5);
     Hardware::can.Send(0x65, static_cast<int32_t>(pack.getCapacity()));
+    vTaskDelay(5);
     Hardware::can.Send(0x66, static_cast<int32_t>(pack.getBattVol()));
+    vTaskDelay(5);
     Hardware::can.Send(0x67, static_cast<int32_t>(pack.getCellVol(Cell::cell_1)));
+    vTaskDelay(5);
     Hardware::can.Send(0x68, static_cast<int32_t>(pack.getCellVol(Cell::cell_2)));
+    vTaskDelay(5);
     Hardware::can.Send(0x69, static_cast<int32_t>(pack.getCellVol(Cell::cell_3)));
+    vTaskDelay(5);
 }
 
 void BatterySystem::sendDataUart() {
