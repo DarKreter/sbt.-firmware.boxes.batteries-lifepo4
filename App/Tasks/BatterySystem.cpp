@@ -4,7 +4,7 @@
 
 #include "BatterySystem.hpp"
 
-BatterySystem::BatterySystem() : Task({}, 1000, 2), pack(batteryAddress), pack_2(batteryAddress) {}
+BatterySystem::BatterySystem() : Task({}, 1000, 2), pack_1(batteryAddress), pack_2(batteryAddress) {}
 
 void BatterySystem::initialize() {
     Hardware::configureClocks();
@@ -28,7 +28,7 @@ void BatterySystem::run() {
     isFrameValid(pack_1);
     getData(2);
     isFrameValid(pack_2);
-    sendData();
+    sendDataCan();
 }
 void BatterySystem::getData(const uint8_t choice) {
     switch (choice) {
@@ -37,6 +37,7 @@ void BatterySystem::getData(const uint8_t choice) {
             Hardware::uart3.Send(pack_2.getPointerToAddress(), ADDRESS_LENGTH);
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
             Hardware::uart3.Receive(receivedFrame, FRAME_LENGTH);
+            break;
         default:
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
             Hardware::uart2.Send(pack_1.getPointerToAddress(), ADDRESS_LENGTH);
