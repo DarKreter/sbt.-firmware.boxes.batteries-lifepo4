@@ -37,7 +37,7 @@ public:
     BatteryPack(const uint8_t addr[]);
 
     void setAddress(const uint8_t addr[]);
-    void setFrame(uint8_t data[]);
+    void setFrame(const uint8_t data[]);
 
     uint8_t* getPointerToAddress();
     uint8_t* getPointerToFrame();

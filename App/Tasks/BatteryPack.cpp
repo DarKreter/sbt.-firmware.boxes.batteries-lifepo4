@@ -16,7 +16,7 @@ void BatteryPack::setAddress(const uint8_t *addr) {
     }
 }
 
-void BatteryPack::setFrame(uint8_t *data) {
+void BatteryPack::setFrame(const uint8_t *data) {
     if (*data == ':' && *(data+165) == '~') {
         for (int i = 0; i<FRAME_LENGTH; i++) {
             frame[i] = data[i];
