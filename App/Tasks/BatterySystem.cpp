@@ -22,6 +22,8 @@ void BatterySystem::initialize() {
     Hardware::can.Initialize(0x100, {});
 
     Hardware::enableGpio(GPIOA, GPIO_PIN_1, Gpio::Mode::Output);
+    Hardware::enableGpio(GPIOB, GPIO_PIN_14, Gpio::Mode::Output);
+
 }
 void BatterySystem::run() {
     getData(1);
@@ -32,10 +34,16 @@ void BatterySystem::run() {
 }
 void BatterySystem::getData(const uint8_t choice) {
     switch (choice) {
-        case 2:
+        case 1:
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
-            Hardware::uart3.Send(pack_2.getPointerToAddress(), ADDRESS_LENGTH);
+            Hardware::uart2.Send(pack_1.getPointerToAddress(), ADDRESS_LENGTH);
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+            Hardware::uart2.Receive(receivedFrame, FRAME_LENGTH);
+            break;
+        case 2:
+            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET); //Uart2 - A1
+            Hardware::uart3.Send(pack_2.getPointerToAddress(), ADDRESS_LENGTH);
+            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
             Hardware::uart3.Receive(receivedFrame, FRAME_LENGTH);
             break;
         default:
