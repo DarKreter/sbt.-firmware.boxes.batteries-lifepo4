@@ -4,64 +4,61 @@
 
 #include "BatterySystem.hpp"
 
-BatterySystem::BatterySystem() : Task({}, 1000, 2), pack_1(batteryAddress), pack_2(batteryAddress) {}
+typedef uint16_t (BatteryPack::*BatMemFn)(void);
+BatMemFn wsk[] = {&BatteryPack::getChargingCurrent,
+                  &BatteryPack::getDischargingCurrent,
+                  &BatteryPack::getState,
+                  &BatteryPack::getChargeLevelPercentage,
+                  &BatteryPack::getChargeLevelAh,
+                  &BatteryPack::getCapacity,
+                  &BatteryPack::getBatVol
+};
+
+BatterySystem::BatterySystem(UART& uart, GPIO_TypeDef* gpio, uint32_t pin, ParameterId batID)
+                                : Task({}, 1000, 2),
+                                uart(uart),
+                                selectedPort(gpio),
+                                selectedPin(pin),
+                                batteryID(batID),
+                                pack(batteryAddress){}
 
 void BatterySystem::initialize() {
     Hardware::configureClocks();
+    Hardware::enableGpio(selectedPort, selectedPin, Gpio::Mode::Output);
+    Hardware::enableGpio(selectedPort, selectedPin, Gpio::Mode::Output);
 
-    Hardware::uart1.ChangeModeToBlocking(1000);
-    Hardware::uart1.SetBaudRate(9600);
-    Hardware::uart1.Initialize();
-    Hardware::uart2.ChangeModeToBlocking(1000);
-    Hardware::uart2.SetBaudRate(9600);
-    Hardware::uart2.Initialize();
-    Hardware::uart3.ChangeModeToBlocking(1000);
-    Hardware::uart3.SetBaudRate(9600);
-    Hardware::uart3.Initialize();
+    if (!Hardware::can.IsInitialized())
+        Hardware::can.Initialize(BoxId::BOX3, {});
 
-    Hardware::can.Initialize(0x100, {});
-
-    Hardware::enableGpio(GPIOA, GPIO_PIN_1, Gpio::Mode::Output);
-    Hardware::enableGpio(GPIOB, GPIO_PIN_14, Gpio::Mode::Output);
-
+    uart.ChangeModeToBlocking(1000);
+    uart.SetBaudRate(9600);
+    uart.Initialize();
 }
 void BatterySystem::run() {
-    getData(1);
-    isFrameValid(pack_1);
-    getData(2);
-    isFrameValid(pack_2);
-    sendDataCan();
+    getData();
+    //verifyFrame();
+    //sendDataCAN();
 }
-void BatterySystem::getData(const uint8_t choice) {
-    switch (choice) {
-        case 1:
-            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
-            Hardware::uart2.Send(pack_1.getPointerToAddress(), ADDRESS_LENGTH);
-            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
-            Hardware::uart2.Receive(receivedFrame, FRAME_LENGTH);
-            break;
-        case 2:
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET); //Uart2 - A1
-            Hardware::uart3.Send(pack_2.getPointerToAddress(), ADDRESS_LENGTH);
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
-            Hardware::uart3.Receive(receivedFrame, FRAME_LENGTH);
-            break;
-        default:
-            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
-            Hardware::uart2.Send(pack_1.getPointerToAddress(), ADDRESS_LENGTH);
-            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
-            Hardware::uart2.Receive(receivedFrame, FRAME_LENGTH);
+void BatterySystem::getData() {
+    HAL_GPIO_WritePin(selectedPort, selectedPin, GPIO_PIN_SET);
+    uart.Send(pack.getPointerToAddress(), ADDRESS_LENGTH);
+    HAL_GPIO_WritePin(selectedPort, selectedPin, GPIO_PIN_RESET);
+    uart.Receive(receivedFrame, FRAME_LENGTH);
+}
+void BatterySystem::verifyFrame() {
+    pack.setFrame((receivedFrame[0] == ':' && receivedFrame[165] == '~')? receivedFrame : clearFrame);
+}
+void BatterySystem::sendDataCAN() {
+    for (int i = 0; i < 7; ++i) {
+        Hardware::can.Send(static_cast<ParameterId>(static_cast<int>(batteryID) + i),\
+        static_cast<int32_t>(CALL_MEMBER_FN(pack, wsk[i])()));
     }
+    Hardware::can.Send(static_cast<ParameterId>(static_cast<int>(batteryID) + 7), pack.getPower());
 }
-
-/*void BatterySystem::sendData() {
-    if (isFrameValid()) {
-        sendDataCan();
-    } else
-        Hardware::uart1.Send(receivedFrame, sizeof(receivedFrame));
-}*/
-
-bool BatterySystem::isFrameValid(BatteryPack& pack) {
+/**
+ ** functions to debug
+**/
+bool BatterySystem::isFrameValid() {
     if (receivedFrame[0] == ':' && receivedFrame[165] == '~') {
         pack.setFrame(receivedFrame);
         return true;
@@ -70,35 +67,10 @@ bool BatterySystem::isFrameValid(BatteryPack& pack) {
         return false;
     }
 }
-
-void BatterySystem::sendDataCan() {
-    Hardware::can.Send(0x60, static_cast<int32_t>(pack_1.getChargingCurrent()));
-    Hardware::can.Send(0x61, static_cast<int32_t>(pack_1.getDischargingCurrent()));
-    Hardware::can.Send(0x62, static_cast<int32_t>(pack_1.getState()));
-    Hardware::can.Send(0x63, static_cast<int32_t>(pack_1.getChargeLevelPercentage()));
-    Hardware::can.Send(0x64, static_cast<int32_t>(pack_1.getChargeLevelAh()));
-    Hardware::can.Send(0x65, static_cast<int32_t>(pack_1.getCapacity()));
-    Hardware::can.Send(0x66, static_cast<int32_t>(pack_1.getBattVol()));
-    Hardware::can.Send(0x67, static_cast<int32_t>(pack_1.getCellVol(Cell::cell_1)));
-    Hardware::can.Send(0x68, static_cast<int32_t>(pack_1.getCellVol(Cell::cell_2)));
-    Hardware::can.Send(0x69, static_cast<int32_t>(pack_1.getCellVol(Cell::cell_3)));
-
-    Hardware::can.Send(0x70, static_cast<int32_t>(pack_2.getChargingCurrent()));
-    Hardware::can.Send(0x71, static_cast<int32_t>(pack_2.getDischargingCurrent()));
-    Hardware::can.Send(0x72, static_cast<int32_t>(pack_2.getState()));
-    Hardware::can.Send(0x73, static_cast<int32_t>(pack_2.getChargeLevelPercentage()));
-    Hardware::can.Send(0x74, static_cast<int32_t>(pack_2.getChargeLevelAh()));
-    Hardware::can.Send(0x75, static_cast<int32_t>(pack_2.getCapacity()));
-    Hardware::can.Send(0x76, static_cast<int32_t>(pack_2.getBattVol()));
-    Hardware::can.Send(0x77, static_cast<int32_t>(pack_2.getCellVol(Cell::cell_1)));
-    Hardware::can.Send(0x78, static_cast<int32_t>(pack_2.getCellVol(Cell::cell_2)));
-    Hardware::can.Send(0x79, static_cast<int32_t>(pack_2.getCellVol(Cell::cell_3)));
-}
-
 void BatterySystem::sendDataUart() {
-    convertToString(pack_1.getBattVol());
+    convertToString(pack.getBatVol());
     Hardware::uart1.Send(valueToSend, sizeof(valueToSend));
-    convertToString(pack_1.getCellVol(Cell::cell_1));
+    convertToString(pack.getCellVol(Cell::cell_1));
     Hardware::uart1.Send(valueToSend, sizeof(valueToSend));
 }
 

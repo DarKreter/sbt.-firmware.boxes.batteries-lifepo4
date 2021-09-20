@@ -8,8 +8,8 @@
 #define ADDRESS_LENGTH 17
 #define FRAME_LENGTH 166
 #define NUM_OF_CELLS 14
-
-enum class Status: uint8_t {
+#define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
+enum class Status: uint16_t {
     normal = 0,
     charging = 1,
     discharging = 2
@@ -31,6 +31,8 @@ enum class Cell: uint8_t {
     cell_14 = 13
 };
 
+
+
 class BatteryPack {
 public:
 
@@ -42,14 +44,15 @@ public:
     uint8_t* getPointerToAddress();
     uint8_t* getPointerToFrame();
 
-    Status getState();
+    uint16_t getState();
     uint16_t getCellVol(Cell n);
-    uint16_t getBattVol();
+    uint16_t getBatVol();
     uint16_t getChargingCurrent();
     uint16_t getDischargingCurrent();
     uint16_t getChargeLevelPercentage();
     uint16_t getChargeLevelAh();
     uint16_t getCapacity();
+    int32_t getPower();
 
 private:
 
@@ -63,18 +66,23 @@ private:
     uint16_t chargeLevelPercentage;
     uint16_t chargeLevelAh;
     uint16_t capacity;
+    int32_t power;
 
     void setCellVol(uint8_t cell);
-    void setBattVol();
+    void setBatVol();
     void setChargingCurrent();
     void setDischargingCurrent();
     void setState();
     void setChargeLevelPercentage();
     void setChargeLevelAh();
     void setCapacity();
+    void setPower();
 
     uint16_t convertHexToDec(uint8_t start, uint8_t end);
 };
+
+
+
 #endif //F1XX_PROJECT_TEMPLATE_BATTERYPACK_HPP
 
 /*

@@ -37,7 +37,8 @@ size_t Task::getPriority() const {
 }
 
 void TaskManager::registerTasks() {
-    tasks.push_back(std::make_shared<BatterySystem>());
+    tasks.push_back(std::make_shared<BatterySystem>(Hardware::uart2, GPIOA, GPIO_PIN_1, ParameterId::bat1_chargingCurrent));
+    tasks.push_back(std::make_shared<BatterySystem>(Hardware::uart3, GPIOB, GPIO_PIN_14, ParameterId::bat1_chargingCurrent));
 }
 
 void TaskManager::startTasks() {

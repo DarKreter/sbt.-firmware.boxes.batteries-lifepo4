@@ -32,9 +32,9 @@ uint8_t* BatteryPack::getPointerToFrame() {
     return frame;
 }
 
-Status BatteryPack::getState() {
+uint16_t BatteryPack::getState() {
     setState();
-    return state;
+    return static_cast<uint16_t>(state);
 }
 
 void BatteryPack::setState() {
@@ -50,12 +50,12 @@ void BatteryPack::setCellVol(uint8_t cell) {
     cellVoltage[cell] = convertHexToDec(31+cell*4, 34+cell*4);
 }
 
-uint16_t BatteryPack::getBattVol() {
-    setBattVol();
+uint16_t BatteryPack::getBatVol() {
+    setBatVol();
     return battVoltage;
 }
 
-void BatteryPack::setBattVol() {
+void BatteryPack::setBatVol() {
     battVoltage = 0;
     for (int i = 0; i<NUM_OF_CELLS; ++i) {
         setCellVol(i);
@@ -85,7 +85,10 @@ uint16_t BatteryPack::getChargeLevelPercentage() {
     setChargeLevelPercentage();
     return chargeLevelPercentage;
 }
-
+int32_t BatteryPack::getPower() {
+    setPower();
+    return power;
+}
 void BatteryPack::setChargeLevelPercentage() {
     chargeLevelPercentage = convertHexToDec(153, 154);
 }
@@ -106,6 +109,9 @@ uint16_t BatteryPack::getCapacity() {
 
 void BatteryPack::setCapacity() {
     capacity = convertHexToDec(163, 163);
+}
+void BatteryPack::setPower() {
+    power = getBatVol() + getDischargingCurrent();
 }
 
 uint16_t BatteryPack::convertHexToDec(uint8_t start, uint8_t end) {
