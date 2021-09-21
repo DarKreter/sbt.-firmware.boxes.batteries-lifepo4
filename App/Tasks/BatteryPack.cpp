@@ -111,7 +111,7 @@ void BatteryPack::setCapacity() {
     capacity = convertHexToDec(163, 163);
 }
 void BatteryPack::setPower() {
-    power = getBatVol() + getDischargingCurrent();
+    power = getBatVol() * getDischargingCurrent();
 }
 
 uint16_t BatteryPack::convertHexToDec(uint8_t start, uint8_t end) {

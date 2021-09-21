@@ -26,6 +26,7 @@ void BatterySystem::initialize() {
     Hardware::configureClocks();
     Hardware::enableGpio(selectedPort, selectedPin, Gpio::Mode::Output);
     Hardware::enableGpio(selectedPort, selectedPin, Gpio::Mode::Output);
+    Hardware::enableGpio(GPIOC, GPIO_PIN_13, Gpio::Mode::Output);
 
     if (!Hardware::can.IsInitialized())
         Hardware::can.Initialize(BoxId::BOX3, {});
@@ -35,9 +36,10 @@ void BatterySystem::initialize() {
     uart.Initialize();
 }
 void BatterySystem::run() {
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
     getData();
-    //verifyFrame();
-    //sendDataCAN();
+    verifyFrame();
+    sendDataCAN();
 }
 void BatterySystem::getData() {
     HAL_GPIO_WritePin(selectedPort, selectedPin, GPIO_PIN_SET);
@@ -52,6 +54,7 @@ void BatterySystem::sendDataCAN() {
     for (int i = 0; i < 7; ++i) {
         Hardware::can.Send(static_cast<ParameterId>(static_cast<int>(batteryID) + i),\
         static_cast<int32_t>(CALL_MEMBER_FN(pack, wsk[i])()));
+        vTaskDelay(5);
     }
     Hardware::can.Send(static_cast<ParameterId>(static_cast<int>(batteryID) + 7), pack.getPower());
 }
