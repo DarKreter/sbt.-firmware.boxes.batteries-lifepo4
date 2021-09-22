@@ -51,12 +51,19 @@ void BatterySystem::verifyFrame() {
     pack.setFrame((receivedFrame[0] == ':' && receivedFrame[165] == '~')? receivedFrame : clearFrame);
 }
 void BatterySystem::sendDataCAN() {
-    for (int i = 0; i < 7; ++i) {
+    for (int i = 0; i < RANGE_OF_POINTER_ARRAY; ++i) {
         Hardware::can.Send(static_cast<ParameterId>(static_cast<int>(batteryID) + i),\
         static_cast<int32_t>(CALL_MEMBER_FN(pack, wsk[i])()));
         vTaskDelay(5);
     }
+
     Hardware::can.Send(static_cast<ParameterId>(static_cast<int>(batteryID) + 7), pack.getPower());
+    vTaskDelay(5);
+
+    for (int i = 0, j = OFFSET_ID_PARAMETERS; i < NUM_OF_CELLS; ++i, ++j) {
+        Hardware::can.Send(static_cast<ParameterId>(static_cast<int>(batteryID) + j), static_cast<int32_t>(pack.getCellVol(static_cast<Cell>(i))));
+        vTaskDelay(5);
+    }
 }
 /**
  ** functions to debug

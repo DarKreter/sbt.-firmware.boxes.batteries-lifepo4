@@ -5,10 +5,12 @@
 #ifndef F1XX_PROJECT_TEMPLATE_BATTERYPACK_HPP
 #define F1XX_PROJECT_TEMPLATE_BATTERYPACK_HPP
 #include "cstdint"
+
 #define ADDRESS_LENGTH 17
 #define FRAME_LENGTH 166
 #define NUM_OF_CELLS 14
 #define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
+
 enum class Status: uint16_t {
     normal = 0,
     charging = 1,
@@ -30,8 +32,6 @@ enum class Cell: uint8_t {
     cell_13 = 12,
     cell_14 = 13
 };
-
-
 
 class BatteryPack {
 public:

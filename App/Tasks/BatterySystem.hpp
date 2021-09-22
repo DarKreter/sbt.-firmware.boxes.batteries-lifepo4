@@ -9,7 +9,16 @@
 #include <Hardware.hpp>
 #include <BatteryPack.hpp>
 
+constexpr bool WORK_WITH_TWO_UARTs = true;
+constexpr uint8_t RANGE_OF_POINTER_ARRAY = 7;
+constexpr uint8_t OFFSET_ID_PARAMETERS = 8;
 
+enum class battery : uint16_t{
+    bat1 = 0x60,
+    bat2 = 0x80,
+    bat3 = 0xA0,
+    bat4 = 0xC0
+};
 
 struct BatterySystem : public Task {
     BatterySystem(UART& uart, GPIO_TypeDef* gpio, uint32_t pin, ParameterId battID);
