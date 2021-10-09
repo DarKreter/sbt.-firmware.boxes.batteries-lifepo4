@@ -37,7 +37,12 @@ size_t Task::getPriority() const {
 }
 
 void TaskManager::registerTasks() {
-    tasks.push_back(std::make_shared<BatterySystem>());
+    if constexpr (WORK_WITH_TWO_UARTs) {
+        tasks.push_back(std::make_shared<BatterySystem>(Hardware::uart2, GPIOA, GPIO_PIN_1, static_cast<ParameterId>(battery::bat1)));
+        tasks.push_back(std::make_shared<BatterySystem>(Hardware::uart3, GPIOB, GPIO_PIN_14, static_cast<ParameterId>(battery::bat2)));
+    } else {
+        tasks.push_back(std::make_shared<BatterySystem>(Hardware::uart3, GPIOB, GPIO_PIN_14, static_cast<ParameterId>(battery::bat3)));
+    }
 }
 
 void TaskManager::startTasks() {
