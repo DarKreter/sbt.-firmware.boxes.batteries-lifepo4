@@ -75,7 +75,7 @@ private:
     void setState();
     void setChargeLevelPercentage();
     void setChargeLevelAh();
-    void setCapacity();
+    void setCapacity(); //check received data
     void setPower();
 
     uint16_t convertHexToDec(uint8_t start, uint8_t end);
