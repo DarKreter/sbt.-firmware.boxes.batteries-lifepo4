@@ -1,7 +1,6 @@
 //
 // Created by Damian Bigajczyk on 10.08.2021.
 //
-
 #include "BatterySystem.hpp"
 
 typedef uint16_t (BatteryPack::*BatMemFn)(void);
@@ -35,21 +34,25 @@ void BatterySystem::initialize() {
     uart.SetBaudRate(9600);
     uart.Initialize();
 }
+
 void BatterySystem::run() {
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
     getData();
     verifyFrame();
     sendDataCAN();
 }
+
 void BatterySystem::getData() {
     HAL_GPIO_WritePin(selectedPort, selectedPin, GPIO_PIN_SET);
     uart.Send(pack.getPointerToAddress(), ADDRESS_LENGTH);
     HAL_GPIO_WritePin(selectedPort, selectedPin, GPIO_PIN_RESET);
     uart.Receive(receivedFrame, FRAME_LENGTH);
 }
+
 void BatterySystem::verifyFrame() {
     pack.setFrame((receivedFrame[0] == ':' && receivedFrame[165] == '~')? receivedFrame : clearFrame);
 }
+
 void BatterySystem::sendDataCAN() {
     for (int i = 0; i < RANGE_OF_POINTER_ARRAY; ++i) {
         Hardware::can.Send(static_cast<ParameterId>(static_cast<int>(batteryID) + i),\
@@ -77,6 +80,7 @@ bool BatterySystem::isFrameValid() {
         return false;
     }
 }
+
 void BatterySystem::sendDataUart() {
     convertToString(pack.getBatVol());
     Hardware::uart1.Send(valueToSend, sizeof(valueToSend));

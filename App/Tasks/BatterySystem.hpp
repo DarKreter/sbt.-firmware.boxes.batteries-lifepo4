@@ -35,14 +35,12 @@ private:
     uint32_t selectedPin;
     ParameterId batteryID;
 
-
     BatteryPack pack;
 
     void getData();
     void verifyFrame();
     void sendDataCAN();
     bool isFrameValid();
-
 
     void sendDataUart();
     void convertToString(uint16_t value);
