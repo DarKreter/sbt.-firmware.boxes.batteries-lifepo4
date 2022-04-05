@@ -3,7 +3,6 @@
 //
 
 #include "CommCAN.hpp"
-#include "ExampleTask.hpp"
 #include "SBT-SDK.hpp"
 
 using namespace SBT::System;
@@ -14,7 +13,8 @@ void entryPoint() {
 
   Comm::CAN::Init(Comm::CAN_ID::Source::DEFAULT);
 
-  TaskManager::registerTask(std::make_shared<ExampleTask>());
+  // Add tasks here
+  //TaskManager::registerTask(std::make_shared<ExampleTask>());
 
   Start();
 }

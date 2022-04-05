@@ -5,7 +5,8 @@ add_executable(Firmware
         # Starting procedure
         main.cpp
         # Application-specific tasks
-        Tasks/ExampleTask.cpp
+        Tasks/BatteryPack.cpp
+        Tasks/BatterySystem.cpp
         )
 
 include_directories(Tasks)
